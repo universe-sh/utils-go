@@ -1,5 +1,8 @@
 package slice
 
+// Base of code
+// https://play.golang.org/p/0bWDCibSUJ
+
 // GenerateCombinations func
 func GenerateCombinations(iter []string, length int) <-chan []string {
 	c := make(chan []string)
