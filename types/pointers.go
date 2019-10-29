@@ -9,3 +9,8 @@ func PString(value string) *string {
 func PBool(value bool) *bool {
 	return &value
 }
+
+// PInt64 pointer value
+func PInt64(value int64) *int64 {
+	return &value
+}
