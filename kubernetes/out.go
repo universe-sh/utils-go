@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/hashicorp/go-hclog"
@@ -14,9 +15,13 @@ import (
 
 // NewClientOutOfCluster returns a k8s clientset to the request from outside of cluster
 func NewClientOutOfCluster(logger hclog.Logger) kubernetes.Interface {
-	clientset, err := kubernetes.NewForConfig(BuildOutOfClusterConfig(logger))
-	if err != nil {
-		logger.With("error", err).Error("Kubernetes config")
+	var (
+		clientset *kubernetes.Clientset = nil
+		err       error                 = nil
+	)
+
+	if clientset, err = kubernetes.NewForConfig(BuildOutOfClusterConfig(logger)); err != nil {
+		logger.With("error", err, "context", "out").Error("kubernetes config")
 		os.Exit(1)
 	}
 
@@ -25,14 +30,19 @@ func NewClientOutOfCluster(logger hclog.Logger) kubernetes.Interface {
 
 // BuildOutOfClusterConfig func
 func BuildOutOfClusterConfig(logger hclog.Logger) *rest.Config {
-	kubeconfigPath := os.Getenv("KUBECONFIG")
+	var (
+		kubeconfigPath string       = os.Getenv("KUBECONFIG")
+		home           string       = os.Getenv("HOME")
+		config         *rest.Config = nil
+		err            error        = nil
+	)
+
 	if kubeconfigPath == "" {
-		kubeconfigPath = os.Getenv("HOME") + "/.kube/config"
+		kubeconfigPath = fmt.Sprintf("%s/.kube/config", home)
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
-	if err != nil {
-		logger.With("error", err).Error("Kubernetes config")
+	if config, err = clientcmd.BuildConfigFromFlags("", kubeconfigPath); err != nil {
+		logger.With("error", err, "context", "out").Error("kubernetes config")
 		os.Exit(1)
 	}
 

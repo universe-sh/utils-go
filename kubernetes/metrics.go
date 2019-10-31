@@ -8,8 +8,12 @@ import (
 
 // NewMetricsClient returns a k8s metrics client
 func NewMetricsClient(c *rest.Config, logger hclog.Logger) *metrics.Clientset {
-	mc, err := metrics.NewForConfig(c)
-	if err != nil {
+	var (
+		mc  *metrics.Clientset = nil
+		err error              = nil
+	)
+
+	if mc, err = metrics.NewForConfig(c); err != nil {
 		logger.With("error", err).Error("Impossible to fetch metrics, server-metrics is installed ?")
 		return nil
 	}

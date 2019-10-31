@@ -11,8 +11,12 @@ import (
 
 // NewClient returns a k8s clientset to the request from inside of cluster
 func NewClient(logger hclog.Logger) kubernetes.Interface {
-	clientset, err := kubernetes.NewForConfig(BuildInClusterConfig(logger))
-	if err != nil {
+	var (
+		clientset *kubernetes.Clientset = nil
+		err       error                 = nil
+	)
+
+	if clientset, err = kubernetes.NewForConfig(BuildInClusterConfig(logger)); err != nil {
 		return nil
 	}
 
@@ -21,8 +25,12 @@ func NewClient(logger hclog.Logger) kubernetes.Interface {
 
 // BuildInClusterConfig Configuration in AC Kubernetes
 func BuildInClusterConfig(logger hclog.Logger) *rest.Config {
-	config, err := rest.InClusterConfig()
-	if err != nil {
+	var (
+		config *rest.Config = nil
+		err    error        = nil
+	)
+
+	if config, err = rest.InClusterConfig(); err != nil {
 		return nil
 	}
 
