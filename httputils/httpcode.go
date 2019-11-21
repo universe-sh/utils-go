@@ -10,9 +10,9 @@ import (
 
 // Response HTTP
 type Response struct {
-	RequestID string        `json:"request_id,omitempty"`
-	Message   string        `json:"message,omitempty"`
-	Results   []interface{} `json:"results,omitempty"`
+	RequestID string      `json:"request_id,omitempty"`
+	Message   string      `json:"message,omitempty"`
+	Data      interface{} `json:"data,omitempty"`
 }
 
 var (
@@ -22,6 +22,7 @@ var (
 		404: "Not Found",
 		409: "Conflict",
 		500: "Internal Server Error",
+		503: "Service Unavailable",
 	}
 	successCode = map[int]string{
 		200: "OK",
@@ -37,8 +38,8 @@ func SendError(w http.ResponseWriter, code int) {
 		err   error
 	)
 
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{
 		RequestID: guuid.String(),
@@ -48,24 +49,20 @@ func SendError(w http.ResponseWriter, code int) {
 		log.Printf("Failed json: %v", err)
 		return
 	}
-
-	return
 }
 
 // SendData response
-func SendData(w http.ResponseWriter, code int, data []interface{}) {
+func SendData(w http.ResponseWriter, code int, data interface{}) {
 	var err error
 
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 
-	err = json.NewEncoder(w).Encode(Response{Results: data})
+	err = json.NewEncoder(w).Encode(Response{Data: data})
 	if err != nil {
 		log.Printf("Failed json: %v", err)
 		return
 	}
-
-	return
 }
 
 // SendCode response
@@ -75,8 +72,8 @@ func SendCode(w http.ResponseWriter, code int) {
 		err   error
 	)
 
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{
 		RequestID: guuid.String(),
@@ -86,6 +83,4 @@ func SendCode(w http.ResponseWriter, code int) {
 		log.Printf("Failed json: %v", err)
 		return
 	}
-
-	return
 }
