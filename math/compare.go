@@ -4,7 +4,7 @@ package math
 func MinValue(a map[string]int64) string {
 	var (
 		tmpString  string
-		tmpInteger int64 = 9999999999
+		tmpInteger int64 = 9223372036854775807
 	)
 
 	for k, v := range a {
