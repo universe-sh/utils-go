@@ -39,6 +39,7 @@ func SendError(w http.ResponseWriter, code int) {
 	)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{
@@ -46,21 +47,25 @@ func SendError(w http.ResponseWriter, code int) {
 		Message:   errorCode[code],
 	})
 	if err != nil {
-		log.Printf("Failed json: %v", err)
+		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
 }
 
 // SendData response
 func SendData(w http.ResponseWriter, code int, data interface{}) {
-	var err error
+	var (
+		guuid = uuid.New()
+		err   error
+	)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{Data: data})
 	if err != nil {
-		log.Printf("Failed json: %v", err)
+		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
 }
@@ -73,6 +78,7 @@ func SendCode(w http.ResponseWriter, code int) {
 	)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{
@@ -80,7 +86,7 @@ func SendCode(w http.ResponseWriter, code int) {
 		Message:   successCode[code],
 	})
 	if err != nil {
-		log.Printf("Failed json: %v", err)
+		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
 }
