@@ -8,11 +8,19 @@ import (
 	"github.com/google/uuid"
 )
 
+// Metadatas struct
+type Metadatas struct {
+	TotalIndex     int `json:"total_index,omitempty"`
+	FirstIndexPage int `json:"first_index_page,omitempty"`
+	LastIndexPage  int `json:"last_index_page,omitempty"`
+}
+
 // Response HTTP
 type Response struct {
 	RequestID string      `json:"request_id,omitempty"`
 	Message   string      `json:"message,omitempty"`
-	Data      interface{} `json:"data,omitempty"`
+	Results   interface{} `json:"results,omitempty"`
+	Metadatas *Metadatas  `json:"metadatas,omitempty"`
 }
 
 var (
@@ -53,7 +61,7 @@ func SendError(w http.ResponseWriter, code int) {
 }
 
 // SendData response
-func SendData(w http.ResponseWriter, code int, data interface{}) {
+func SendData(w http.ResponseWriter, code int, resp *Response) {
 	var (
 		guuid = uuid.New()
 		err   error
@@ -63,7 +71,7 @@ func SendData(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
-	err = json.NewEncoder(w).Encode(Response{Data: data})
+	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
