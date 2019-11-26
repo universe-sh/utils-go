@@ -1,7 +1,6 @@
 package httputils
 
 import (
-	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -69,22 +68,21 @@ func URLQuery(queries url.Values) (map[string][]string, Pagination) {
 	return parameters, paginate
 }
 
-// PostJSONQuery HTTP
-func PostJSONQuery(rbody io.ReadCloser) interface{} {
-	var data interface{}
+func BodyQuery(body io.ReadCloser) ([]byte, error) {
+	var (
+		data []byte
+		err  error
+	)
 
-	// POST Body
-	body, err := ioutil.ReadAll(rbody)
-	if err != nil {
-		return nil
+	if data, err = ioutil.ReadAll(io.LimitReader(body, 1048576)); err != nil {
+		return nil, err
 	}
 
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return nil
+	if err = body.Close(); err != nil {
+		return nil, err
 	}
 
-	return data
+	return data, nil
 }
 
 // DataQuery informations
