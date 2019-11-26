@@ -1,7 +1,6 @@
 package httputils
 
 import (
-	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -10,23 +9,11 @@ import (
 	"github.com/universe-sh/utils-go/slice"
 )
 
-// Pages Pagination Limits
-type Pages struct {
-	Start int
-	End   int
-}
-
 // Pagination struct
 type Pagination struct {
 	PerPage int
 	Page    int
-	Limits  Pages
-}
-
-// Data result reponse
-type Data struct {
-	Count   int           `json:"count"`
-	Results []interface{} `json:"results"`
+	Limits  map[string]int
 }
 
 const (
@@ -61,58 +48,65 @@ func URLQuery(queries url.Values) (map[string][]string, Pagination) {
 					}
 				}
 			}
+		} else {
+			parameters[name] = values
 		}
-
-		parameters[name] = values
 	}
 
+	paginate.Limits = make(map[string]int)
 	// Pagination calc limitations
 	if paginate.PerPage >= minPerPage && paginate.PerPage <= maxPerPage {
-		paginate.Limits.Start = ((paginate.Page * paginate.PerPage) - paginate.PerPage)
-		paginate.Limits.End = (paginate.Page * paginate.PerPage) - 1
+		paginate.Limits["first"] = ((paginate.Page * paginate.PerPage) - paginate.PerPage)
+		paginate.Limits["last"] = (paginate.Page * paginate.PerPage) - 1
 	} else {
 		paginate = Pagination{
 			PerPage: 25, Page: 1,
-			Limits: Pages{Start: 0, End: 24},
+			Limits: map[string]int{"first": 0, "last": 24},
 		}
 	}
 
 	return parameters, paginate
 }
 
-// PostJSONQuery HTTP
-func PostJSONQuery(rbody io.ReadCloser) interface{} {
-	var data interface{}
+func BodyQuery(body io.ReadCloser) ([]byte, error) {
+	var (
+		data []byte
+		err  error
+	)
 
-	// POST Body
-	body, err := ioutil.ReadAll(rbody)
-	if err != nil {
-		return nil
+	if data, err = ioutil.ReadAll(io.LimitReader(body, 1048576)); err != nil {
+		return nil, err
 	}
 
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return nil
+	if err = body.Close(); err != nil {
+		return nil, err
 	}
 
-	return data
+	return data, nil
 }
 
 // DataQuery informations
-func DataQuery(tmpData *Data, pages Pagination) *Data {
+func DataQuery(tmpData []interface{}, pages Pagination) *Response {
 	var (
-		count = tmpData.Count - 1
-		data  = new(Data)
+		count = len(tmpData) - 1
+		data  = make([]interface{}, 0)
+		i     int
 	)
 
-	for i := pages.Limits.Start; i <= pages.Limits.End; i++ {
+	for i = pages.Limits["first"]; i <= pages.Limits["last"]; i++ {
 		if i > count {
 			break
 		}
 
-		data.Results = append(data.Results, tmpData.Results[i])
-		data.Count++
+		data = append(data, tmpData[i])
 	}
 
-	return data
+	return &Response{
+		Results: data,
+		Metadatas: &Metadatas{
+			TotalIndex:     (count + 1),
+			FirstIndexPage: (pages.Limits["first"] + 1),
+			LastIndexPage:  i,
+		},
+	}
 }

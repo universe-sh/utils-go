@@ -8,15 +8,24 @@ import (
 	"github.com/google/uuid"
 )
 
+// Metadatas struct
+type Metadatas struct {
+	TotalIndex     int `json:"total_index,omitempty"`
+	FirstIndexPage int `json:"first_index_page,omitempty"`
+	LastIndexPage  int `json:"last_index_page,omitempty"`
+}
+
 // Response HTTP
 type Response struct {
 	RequestID string      `json:"request_id,omitempty"`
 	Message   string      `json:"message,omitempty"`
-	Data      interface{} `json:"data,omitempty"`
+	Results   interface{} `json:"results,omitempty"`
+	Metadatas *Metadatas  `json:"metadatas,omitempty"`
 }
 
 var (
 	errorCode = map[int]string{
+		400: "Bad Request",
 		401: "Unauthorized",
 		403: "Forbidden",
 		404: "Not Found",
@@ -39,6 +48,7 @@ func SendError(w http.ResponseWriter, code int) {
 	)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{
@@ -46,21 +56,25 @@ func SendError(w http.ResponseWriter, code int) {
 		Message:   errorCode[code],
 	})
 	if err != nil {
-		log.Printf("Failed json: %v", err)
+		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
 }
 
 // SendData response
-func SendData(w http.ResponseWriter, code int, data interface{}) {
-	var err error
+func SendData(w http.ResponseWriter, code int, resp *Response) {
+	var (
+		guuid = uuid.New()
+		err   error
+	)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
-	err = json.NewEncoder(w).Encode(Response{Data: data})
+	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
-		log.Printf("Failed json: %v", err)
+		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
 }
@@ -73,6 +87,7 @@ func SendCode(w http.ResponseWriter, code int) {
 	)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
 	err = json.NewEncoder(w).Encode(Response{
@@ -80,7 +95,7 @@ func SendCode(w http.ResponseWriter, code int) {
 		Message:   successCode[code],
 	})
 	if err != nil {
-		log.Printf("Failed json: %v", err)
+		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
 }
