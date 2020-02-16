@@ -1,5 +1,21 @@
 package types
 
+import "encoding/base64"
+
+// PBase64toString pointer value
+func PBase64toString(value string) *string {
+	var (
+		dec []byte
+		err error
+	)
+
+	if dec, err = base64.StdEncoding.DecodeString(value); err != nil {
+		return nil
+	}
+
+	return PString(string(dec))
+}
+
 // PString pointer value
 func PString(value string) *string {
 	return &value
