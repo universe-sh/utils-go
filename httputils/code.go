@@ -10,7 +10,7 @@ import (
 
 // Metadatas struct
 type Metadatas struct {
-	TotalIndex     int `json:"total_index,omitempty"`
+	TotalIndex     int `json:"total_index"`
 	FirstIndexPage int `json:"first_index_page,omitempty"`
 	LastIndexPage  int `json:"last_index_page,omitempty"`
 }
@@ -29,6 +29,7 @@ var (
 		401: "Unauthorized",
 		403: "Forbidden",
 		404: "Not Found",
+		405: "Method Not Allowed",
 		409: "Conflict",
 		500: "Internal Server Error",
 		503: "Service Unavailable",
@@ -51,11 +52,10 @@ func SendError(w http.ResponseWriter, code int) {
 	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
-	err = json.NewEncoder(w).Encode(Response{
+	if err = json.NewEncoder(w).Encode(Response{
 		RequestID: guuid.String(),
 		Message:   errorCode[code],
-	})
-	if err != nil {
+	}); err != nil {
 		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
@@ -72,8 +72,7 @@ func SendData(w http.ResponseWriter, code int, resp *Response) {
 	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
 		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}
@@ -90,11 +89,10 @@ func SendCode(w http.ResponseWriter, code int) {
 	w.Header().Set("X-Request-ID", guuid.String())
 	w.WriteHeader(code)
 
-	err = json.NewEncoder(w).Encode(Response{
+	if err = json.NewEncoder(w).Encode(Response{
 		RequestID: guuid.String(),
 		Message:   successCode[code],
-	})
-	if err != nil {
+	}); err != nil {
 		log.Printf("RequestID %s: failed json %v", guuid.String(), err)
 		return
 	}

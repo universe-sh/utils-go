@@ -1,8 +1,6 @@
 package httputils
 
 import (
-	"io"
-	"io/ioutil"
 	"net/url"
 	"strconv"
 
@@ -29,9 +27,15 @@ var (
 func URLQuery(queries url.Values) (map[string][]string, Pagination) {
 	var (
 		parameters = make(map[string][]string)
-		paginate   Pagination
-		value      int
-		err        error
+		paginate   = Pagination{
+			PerPage: 25, Page: 1,
+			Limits: map[string]int{
+				"first": 0,
+				"last":  24,
+			},
+		}
+		value int
+		err   error
 	)
 
 	for name, values := range queries {
@@ -58,55 +62,33 @@ func URLQuery(queries url.Values) (map[string][]string, Pagination) {
 	if paginate.PerPage >= minPerPage && paginate.PerPage <= maxPerPage {
 		paginate.Limits["first"] = ((paginate.Page * paginate.PerPage) - paginate.PerPage)
 		paginate.Limits["last"] = (paginate.Page * paginate.PerPage) - 1
-	} else {
-		paginate = Pagination{
-			PerPage: 25, Page: 1,
-			Limits: map[string]int{"first": 0, "last": 24},
-		}
 	}
 
 	return parameters, paginate
 }
 
-func BodyQuery(body io.ReadCloser) ([]byte, error) {
-	var (
-		data []byte
-		err  error
-	)
-
-	if data, err = ioutil.ReadAll(io.LimitReader(body, 1048576)); err != nil {
-		return nil, err
-	}
-
-	if err = body.Close(); err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
 // DataQuery informations
 func DataQuery(tmpData []interface{}, pages Pagination) *Response {
 	var (
-		count = len(tmpData) - 1
+		count = len(tmpData)
 		data  = make([]interface{}, 0)
-		i     int
+		last  int
 	)
 
-	for i = pages.Limits["first"]; i <= pages.Limits["last"]; i++ {
-		if i > count {
+	for last = pages.Limits["first"]; last <= pages.Limits["last"]; last++ {
+		if last >= count {
 			break
 		}
 
-		data = append(data, tmpData[i])
+		data = append(data, tmpData[last])
 	}
 
 	return &Response{
 		Results: data,
 		Metadatas: &Metadatas{
-			TotalIndex:     (count + 1),
+			TotalIndex:     count,
 			FirstIndexPage: (pages.Limits["first"] + 1),
-			LastIndexPage:  i,
+			LastIndexPage:  last,
 		},
 	}
 }
