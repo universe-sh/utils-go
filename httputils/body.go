@@ -8,6 +8,7 @@ import (
 	"github.com/golang/gddo/httputil/header"
 )
 
+// DecodeJSONBody in http request
 func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	if r.Header.Get("Content-Type") != "" {
 		value, _ := header.ParseValueAndParams(r.Header, "Content-Type")
@@ -23,8 +24,8 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 	if err := dec.Decode(&dst); err != nil {
 		return err
 	}
-	dec.DisallowUnknownFields()
 
+	dec.DisallowUnknownFields()
 	if dec.More() {
 		return errors.New("Request body must only contain a single JSON object")
 	}
