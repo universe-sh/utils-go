@@ -13,3 +13,6 @@ race:
 
 test:
 	PATH="${PWD}/bin:${PWD}/test/bin:${PATH}" go test ${TEST_FLAGS} ${PKG_LIST}
+
+race:
+	PATH="${PWD}/bin:${PWD}/test/bin:${PATH}" go test -race -coverprofile=coverage.txt -covermode=atomic ${PKG_LIST}
