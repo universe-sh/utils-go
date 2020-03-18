@@ -46,9 +46,13 @@ func URLQuery(queries url.Values) (map[string][]string, Pagination) {
 				if value, err = strconv.Atoi(values[0]); err == nil {
 					switch name {
 					case "page":
-						paginate.Page = value
+						if value >= 1 {
+							paginate.Page = value
+						}
 					case "per_page":
-						paginate.PerPage = value
+						if value >= 1 {
+							paginate.PerPage = value
+						}
 					}
 				}
 			}
