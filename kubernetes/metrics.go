@@ -9,8 +9,8 @@ import (
 // NewMetricsClient returns a k8s metrics client
 func NewMetricsClient(c *rest.Config, logger hclog.Logger) *metrics.Clientset {
 	var (
-		mc  *metrics.Clientset = nil
-		err error              = nil
+		mc  *metrics.Clientset
+		err error
 	)
 
 	if mc, err = metrics.NewForConfig(c); err != nil {

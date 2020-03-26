@@ -10,10 +10,10 @@ import (
 )
 
 // NewClient returns a k8s clientset to the request from inside of cluster
-func NewClient(logger hclog.Logger) kubernetes.Interface {
+func NewClient(logger hclog.Logger) *kubernetes.Clientset {
 	var (
-		clientset *kubernetes.Clientset = nil
-		err       error                 = nil
+		clientset *kubernetes.Clientset
+		err       error
 	)
 
 	if clientset, err = kubernetes.NewForConfig(BuildInClusterConfig(logger)); err != nil {

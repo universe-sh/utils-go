@@ -14,10 +14,10 @@ import (
 )
 
 // NewClientOutOfCluster returns a k8s clientset to the request from outside of cluster
-func NewClientOutOfCluster(logger hclog.Logger) kubernetes.Interface {
+func NewClientOutOfCluster(logger hclog.Logger) *kubernetes.Clientset {
 	var (
-		clientset *kubernetes.Clientset = nil
-		err       error                 = nil
+		clientset *kubernetes.Clientset
+		err       error
 	)
 
 	if clientset, err = kubernetes.NewForConfig(BuildOutOfClusterConfig(logger)); err != nil {
