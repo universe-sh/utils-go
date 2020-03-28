@@ -6,13 +6,13 @@ import (
 
 func TestPourcent(t *testing.T) {
 	type args struct {
-		a int64
-		b int64
+		a int32
+		b int32
 	}
 	tests := []struct {
 		name string
 		args args
-		want float64
+		want float32
 	}{
 		{args: args{a: 1, b: 1}, want: 100},
 		{args: args{a: -1, b: 2}, want: -50},
@@ -32,13 +32,13 @@ func TestPourcent(t *testing.T) {
 
 func TestDiff(t *testing.T) {
 	type args struct {
-		a int64
-		b int64
+		a int32
+		b int32
 	}
 	tests := []struct {
 		name string
 		args args
-		want int64
+		want int32
 	}{
 		{args: args{a: 1, b: -1}, want: 2},
 		{args: args{a: -1, b: -32}, want: 31},
