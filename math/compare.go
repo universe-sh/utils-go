@@ -1,10 +1,10 @@
 package math
 
 // MinValue value
-func MinValue(a map[string]int64) string {
+func MinValue(a map[string]int32) string {
 	var (
 		tmpString  string
-		tmpInteger int64 = 9223372036854775807
+		tmpInteger int32 = 2147483647
 	)
 
 	for k, v := range a {
