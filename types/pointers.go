@@ -30,3 +30,8 @@ func PBool(value bool) *bool {
 func PInt64(value int64) *int64 {
 	return &value
 }
+
+// PInt32 pointer value
+func PInt32(value int32) *int32 {
+	return &value
+}
