@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Region struct
 type Region struct {
 	Name  string   `json:"name,omitempty"`
 	Zones []string `json:"zones,omitempty"`
@@ -34,12 +35,13 @@ type Pricing struct {
 	Spot     map[string]float32 `json:"spot,omitempty"`
 }
 
-// Node represents a Provider Region available
+// Engine struct
 type Engine struct {
 	Resources *Resources `json:"resources,omitempty"`
 	Pricing   *Pricing   `json:"pricing,omitempty"`
 }
 
+// GetRegions Cloud Provider
 func (c *Client) GetRegions(cloud string) ([]Region, error) {
 	var (
 		r   []Region
@@ -52,6 +54,7 @@ func (c *Client) GetRegions(cloud string) ([]Region, error) {
 	return r, err
 }
 
+// GetEngine Cloud Provider by region
 func (c *Client) GetEngine(cloud, region string) (map[string]Engine, error) {
 	var (
 		r   = make(map[string]map[string]Engine, 0)

@@ -13,6 +13,7 @@ const (
 	cdn = "cdn.universe.sh"
 )
 
+// Client struct
 type Client struct {
 	Context context.Context
 	HTTP    *http.Client
@@ -46,6 +47,7 @@ func (c *Client) GetJSON(endpoint string, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
 
+// New Client endpoint
 func New() *Client {
 	return &Client{
 		HTTP: &http.Client{
