@@ -48,8 +48,9 @@ func (c *Client) GetJSON(endpoint string, v interface{}) error {
 }
 
 // New Client endpoint
-func New() *Client {
+func NewClient() *Client {
 	return &Client{
+		Context: context.TODO(),
 		HTTP: &http.Client{
 			Timeout: (3 * time.Second),
 		},
